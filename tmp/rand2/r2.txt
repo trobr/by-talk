@@ -1,0 +1,6 @@
+def re_store():
+    import os
+    files = os.listdir(src_path)
+    for file in files:
+        full_path = os.path.join(src_path, file)
+        new_file = os.path.join(dst_path, file)

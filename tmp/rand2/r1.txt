@@ -1,0 +1,8 @@
+def re_store():
+    import os
+
+    src_path = '/home/rand1'
+    dst_path = '/home/rand2'
+
+    files = os.listdir(src_path)
+    for file in files:

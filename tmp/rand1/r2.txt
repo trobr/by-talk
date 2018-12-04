@@ -1,0 +1,11 @@
+def re_store():
+    import os
+    files = os.listdir(src_path)
+    for file in files:
+        full_path = os.path.join(src_path, file)
+        new_file = os.path.join(dst_path, file)
+        with open(full_path, 'r') as fd:
+            msg = fd.read().strip.split()
+            msg = msg[:len(msg) // 2]
+            with open(new_file, 'w') as nfd:
+                nfd.write(msg)
