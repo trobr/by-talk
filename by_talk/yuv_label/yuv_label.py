@@ -1,5 +1,6 @@
 import os
 import cv2
+import argparse
 import datetime
 import numpy as np
 
@@ -106,8 +107,17 @@ def bprint(msg, own=None, is_progress=False):
         print(out)
 
 
+def init():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('yuv', type=str, help='yuv file path')
+    args = parser.parse_args()
+
+    return args
+
+
 def main():
-    yuv_file = r'D:\ImgPro\file\by_talk\yuv_label\BasketballPass_416x240_50.yuv'
+    args = init()
+    yuv_file = args.yuv
     wd = os.getcwd()
     label_file = os.path.join(wd, 'label.txt')
     lo = label(yuv_file, label_file, (416, 240))
