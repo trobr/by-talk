@@ -49,8 +49,6 @@ class label(object):
         else:
             bprint('file open success')
 
-        cv2.namedWindow('frame')
-
         return super().__init__(*args, **kwargs)
 
     def read_raw(self):
@@ -70,28 +68,35 @@ class label(object):
         return ret, bgr
 
     def write_rois(self, cnt, rois):
-        self.flb.write('Frame:%d ' % (cnt))
+        self.flb.write('FrameID,%d,ObjNum,%d,' % (cnt, len(rois)))
+
         for roi in rois:
             # x,y,w,h
-            self.flb.write('%d,%d,%d,%d '
-                           % (roi[0], roi[1], roi[2], roi[3]))
+            self.flb.write('x1,%d,y1,%d,x2,%d,y2,%d,'
+                           % (roi[0], roi[1], roi[2] + roi[0], roi[3] + roi[1]))
 
         self.flb.write('\n')
+        self.flb.flush()
 
     def run(self):
-        cnt = 0
+        cnt = 1
         while True:
             read_ok, frame = self.read()
             if not read_ok:
                 break
 
+            cv2.namedWindow('frame')
             cv2.imshow('frame', frame)
             rois = cv2.selectROIs('frame', frame)
-            cv2.selectROIs()
             self.write_rois(cnt, rois)
-            cv2.waitKey(30)
             bprint('frame label @ %d' % (cnt))
             cnt += 1
+
+            key = cv2.waitKey()
+            if key == -1:
+                continue
+            elif chr(key) == 'e':
+                break
 
         self.flb.close()
 
@@ -109,7 +114,10 @@ def bprint(msg, own=None, is_progress=False):
 
 def init():
     parser = argparse.ArgumentParser()
-    parser.add_argument('yuv', type=str, help='yuv file path')
+    parser.add_argument('yuv', type=str, help='yuv file path',
+                        default=r'D:\ImgPro\file\by_talk\yuv_label\BasketballPass_416x240_50.yuv')
+    parser.add_argument('width', type=int, help='frame width', default=416)
+    parser.add_argument('height', type=int, help='frame height', default=240)
     args = parser.parse_args()
 
     return args
@@ -118,9 +126,11 @@ def init():
 def main():
     args = init()
     yuv_file = args.yuv
+    size = (args.width, args.height)
+
     wd = os.getcwd()
-    label_file = os.path.join(wd, 'label.txt')
-    lo = label(yuv_file, label_file, (416, 240))
+    label_file = os.path.join(wd, 'label.csv')
+    lo = label(yuv_file, label_file, size)
     lo.run()
 
 
